@@ -1,0 +1,181 @@
+/* --- 共通レイアウト --- */
+.container {
+  max-width: 900px;
+  margin: 40px auto 0 auto;
+  padding: 0 1.5em 3em 1.5em;
+  background: #f6fafd;
+  min-height: 100vh;
+  border-radius: 16px;
+  box-shadow: 0 2px 12px 0 #dde5eb;
+}
+
+/* --- タブ切り替え --- */
+.tab-bar {
+  display: flex;
+  gap: 0.5em;
+  margin: 1.5em 0 2em 0;
+  justify-content: center;
+}
+
+.tab-btn {
+  background: #e3eafc;
+  border: none;
+  border-radius: 8px 8px 0 0;
+  padding: 0.7em 2.4em;
+  font-size: 1.1em;
+  color: #4361ee;
+  font-weight: 500;
+  cursor: pointer;
+  outline: none;
+  transition: background 0.18s, color 0.18s;
+}
+.tab-btn.selected {
+  background: #4361ee;
+  color: #fff;
+  box-shadow: 0 2px 12px 0 #dde5eb;
+  z-index: 1;
+}
+
+/* --- モダンなリストタブ --- */
+.list-tab-modern {
+  display: flex;
+  flex-direction: column;
+  gap: 2em;
+}
+
+.summary-cards-row {
+  display: flex;
+  gap: 1.5em;
+  flex-wrap: wrap;
+}
+
+.summary-card.modern-card {
+  flex: 1 1 240px;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 2px 12px 0 #e3e8f0;
+  padding: 1.5em 2em;
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+  min-width: 220px;
+}
+
+.summary-card.asset .label {
+  font-size: 1.1em;
+  color: #888;
+  margin-bottom: 0.4em;
+}
+.summary-card.asset .value {
+  font-size: 1.5em;
+  font-weight: bold;
+}
+.summary-card .pos {
+  color: #27ae60;
+}
+.summary-card .neg {
+  color: #e74c3c;
+}
+
+.summary-card.monthly .label {
+  font-size: 1.1em;
+  color: #888;
+  margin-bottom: 0.4em;
+  display: flex;
+  align-items: center;
+  gap: 1em;
+}
+.month-select {
+  margin-left: 0.7em;
+  border-radius: 6px;
+  padding: 0.3em 1.2em;
+  font-size: 1em;
+  background: #f7fafd;
+  border: 1px solid #c9d6e3;
+}
+
+.monthly-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2em;
+  margin-top: 0.6em;
+}
+.monthly-details span {
+  font-size: 1.1em;
+}
+.monthly-details .income {
+  color: #27ae60;
+  font-weight: bold;
+  margin-left: 0.5em;
+}
+.monthly-details .expense {
+  color: #e74c3c;
+  font-weight: bold;
+  margin-left: 0.5em;
+}
+
+/* --- 入力フォームとリスト --- */
+.input-form-area {
+  padding: 2em 1.5em;
+  background: #f8fbfc;
+  border-radius: 14px;
+  box-shadow: 0 1px 8px 0 #f0f3fa;
+}
+
+.item-list-area {
+  margin-top: 1em;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 1px 8px 0 #f0f3fa;
+  padding: 2em 1.5em;
+}
+
+/* --- アイテムリストの編集・削除ボタン --- */
+.item-actions {
+  display: flex;
+  gap: 0.8em;
+}
+.edit-btn, .delete-btn {
+  padding: 0.25em 1.1em;
+  border-radius: 5px;
+  border: none;
+  font-size: 1em;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.15s, color 0.15s;
+  outline: none;
+}
+.edit-btn {
+  background: #e3eafc;
+  color: #4361ee;
+}
+.edit-btn:hover {
+  background: #4361ee;
+  color: #fff;
+}
+.delete-btn {
+  background: #fae3e3;
+  color: #e74c3c;
+}
+.delete-btn:hover {
+  background: #e74c3c;
+  color: #fff;
+}
+
+/* --- レスポンシブ --- */
+@media (max-width: 700px) {
+  .container {
+    padding: 0 0.4em 2em 0.4em;
+    border-radius: 0;
+  }
+  .summary-cards-row {
+    flex-direction: column;
+    gap: 1em;
+  }
+  .summary-card.modern-card {
+    padding: 1.3em 1.1em;
+  }
+  .input-form-area, .item-list-area {
+    padding: 1.2em 0.4em;
+  }
+}
