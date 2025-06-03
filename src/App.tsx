@@ -11,6 +11,7 @@ import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "./firebase";
 import Login from "./Login";
 import { useKakeiboItems } from "./hooks/useKakeiboItems";
+import CsvExportButton from "./components/CsvExportButton";
 
 function getYearMonth(date: string) {
   return date.slice(0, 7); // "YYYY-MM"
@@ -25,6 +26,7 @@ const App: React.FC = () => {
   const [selectedMonth, setSelectedMonth] = useState<string>(getCurrentYearMonth());
   const [tab, setTab] = useState<"graph" | "list">("graph"); // タブの状態
 
+
   useEffect(() => {
     return onAuthStateChanged(auth, setUser);
   }, []);
@@ -32,6 +34,10 @@ const App: React.FC = () => {
   const userId = user ? user.uid : null;
   // Firebase用のカスタムフックからitems操作を取得
   const { items, addItem, updateItem, deleteItem } = useKakeiboItems(userId);
+
+  useEffect(() => {
+    console.log("items:", items);
+  }, [items]);
 
   // 追加・編集・削除イベント
   const handleAddItem = (item: Omit<Item, "id">) => {
@@ -139,6 +145,7 @@ const App: React.FC = () => {
                 editItem={editItem}
               />
             </div>
+           
 
             <div className="item-list-area">
               <ItemList
@@ -148,6 +155,17 @@ const App: React.FC = () => {
               />
             </div>
           </div>
+           <button
+              onClick={() => {
+                if (window.confirm("本当に全ての履歴を削除しますか？")) {
+                  items.forEach(item => deleteItem(item.id));
+                }
+              }}
+              style={{ marginBottom: "1em", background: "#e74c3c", color: "#fff", border: "none", borderRadius: "6px", padding: "0.5em 1.2em" }}
+            >
+              全履歴を削除
+            </button>
+            <CsvExportButton items={items} />
         </>
       )}
     </div>
