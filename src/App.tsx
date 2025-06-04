@@ -7,7 +7,7 @@ import AssetChart from "./components/AssetChart";
 import CategoryPieChart from "./components/CategoryPieChart";
 import "./App.css";
 
-import { onAuthStateChanged } from "firebase/auth";
+import { onAuthStateChanged, signOut } from "firebase/auth"; // 追加
 import { auth } from "./firebase";
 import Login from "./Login";
 import { useKakeiboItems } from "./hooks/useKakeiboItems";
@@ -23,9 +23,10 @@ function getCurrentYearMonth() {
 const App: React.FC = () => {
   const [user, setUser] = useState<any>(null);
   const [editItem, setEditItem] = useState<Item | null>(null);
-  const [selectedMonth, setSelectedMonth] = useState<string>(getCurrentYearMonth());
+  const [selectedMonth, setSelectedMonth] = useState<string>(
+    getCurrentYearMonth()
+  );
   const [tab, setTab] = useState<"graph" | "list">("graph"); // タブの状態
-
 
   useEffect(() => {
     return onAuthStateChanged(auth, setUser);
@@ -55,17 +56,37 @@ const App: React.FC = () => {
   };
 
   // 月ごとのフィルタと集計
-  const monthlyItems = items.filter(item => getYearMonth(item.date) === selectedMonth);
-  const monthlyIncome = monthlyItems.filter(item => item.type === "収入").reduce((sum, item) => sum + item.amount, 0);
-  const monthlyExpense = monthlyItems.filter(item => item.type === "支出").reduce((sum, item) => sum + item.amount, 0);
+  const monthlyItems = items.filter(
+    (item) => getYearMonth(item.date) === selectedMonth
+  );
+  const monthlyIncome = monthlyItems
+    .filter((item) => item.type === "収入")
+    .reduce((sum, item) => sum + item.amount, 0);
+  const monthlyExpense = monthlyItems
+    .filter((item) => item.type === "支出")
+    .reduce((sum, item) => sum + item.amount, 0);
 
-  const totalIncome = items.filter(item => item.type === "収入").reduce((sum, item) => sum + item.amount, 0);
-  const totalExpense = items.filter(item => item.type === "支出").reduce((sum, item) => sum + item.amount, 0);
+  const totalIncome = items
+    .filter((item) => item.type === "収入")
+    .reduce((sum, item) => sum + item.amount, 0);
+  const totalExpense = items
+    .filter((item) => item.type === "支出")
+    .reduce((sum, item) => sum + item.amount, 0);
   const netAsset = totalIncome - totalExpense;
 
   const yearMonthList = Array.from(
-    new Set(items.map(item => getYearMonth(item.date)))
+    new Set(items.map((item) => getYearMonth(item.date)))
   ).sort((a, b) => b.localeCompare(a));
+
+  // ログアウト処理
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+    } catch (e) {
+      alert("ログアウトできませんでした: " + (e as Error).message);
+      console.error(e);
+    }
+  };
 
   // 未ログインならログイン画面
   if (!user) {
@@ -75,6 +96,32 @@ const App: React.FC = () => {
   // ログイン時の家計簿アプリUI
   return (
     <div className="container">
+      {/* ユーザー名とログアウトボタン */}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "flex-end",
+          alignItems: "center",
+          gap: 12,
+          margin: "16px 0",
+        }}
+      >
+        <span style={{ fontWeight: 500 }}>{user.displayName} でログイン中</span>
+        <button
+          onClick={handleLogout}
+          style={{
+            background: "#e53935",
+            color: "#fff",
+            border: "none",
+            borderRadius: 8,
+            padding: "8px 18px",
+            fontWeight: 600,
+            cursor: "pointer",
+          }}
+        >
+          ログアウト
+        </button>
+      </div>
       <Header />
       {/* タブ切り替えボタン */}
       <div className="tab-bar">
@@ -109,7 +156,9 @@ const App: React.FC = () => {
               <div className="summary-card modern-card asset">
                 <div className="label">現在の総資産</div>
                 <div className="value">
-                  <span className={netAsset >= 0 ? "pos" : "neg"}>￥{netAsset.toLocaleString()}</span>
+                  <span className={netAsset >= 0 ? "pos" : "neg"}>
+                    ￥{netAsset.toLocaleString()}
+                  </span>
                 </div>
               </div>
               <div className="summary-card modern-card monthly">
@@ -117,13 +166,15 @@ const App: React.FC = () => {
                   集計月
                   <select
                     value={selectedMonth}
-                    onChange={e => setSelectedMonth(e.target.value)}
+                    onChange={(e) => setSelectedMonth(e.target.value)}
                     className="month-select"
                   >
                     {yearMonthList.length === 0 && (
-                      <option value={getCurrentYearMonth()}>{getCurrentYearMonth()}</option>
+                      <option value={getCurrentYearMonth()}>
+                        {getCurrentYearMonth()}
+                      </option>
                     )}
-                    {yearMonthList.map(month => (
+                    {yearMonthList.map((month) => (
                       <option key={month} value={month}>
                         {month}
                       </option>
@@ -131,9 +182,28 @@ const App: React.FC = () => {
                   </select>
                 </div>
                 <div className="monthly-details">
-                  <div><span>収入</span><span className="income">￥{monthlyIncome.toLocaleString()}</span></div>
-                  <div><span>支出</span><span className="expense">￥{monthlyExpense.toLocaleString()}</span></div>
-                  <div><span>差額</span><span className={monthlyIncome - monthlyExpense >= 0 ? "pos" : "neg"}>￥{(monthlyIncome - monthlyExpense).toLocaleString()}</span></div>
+                  <div>
+                    <span>収入</span>
+                    <span className="income">
+                      ￥{monthlyIncome.toLocaleString()}
+                    </span>
+                  </div>
+                  <div>
+                    <span>支出</span>
+                    <span className="expense">
+                      ￥{monthlyExpense.toLocaleString()}
+                    </span>
+                  </div>
+                  <div>
+                    <span>差額</span>
+                    <span
+                      className={
+                        monthlyIncome - monthlyExpense >= 0 ? "pos" : "neg"
+                      }
+                    >
+                      ￥{(monthlyIncome - monthlyExpense).toLocaleString()}
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -145,7 +215,6 @@ const App: React.FC = () => {
                 editItem={editItem}
               />
             </div>
-           
 
             <div className="item-list-area">
               <ItemList
@@ -155,17 +224,24 @@ const App: React.FC = () => {
               />
             </div>
           </div>
-           <button
-              onClick={() => {
-                if (window.confirm("本当に全ての履歴を削除しますか？")) {
-                  items.forEach(item => deleteItem(item.id));
-                }
-              }}
-              style={{ marginBottom: "1em", background: "#e74c3c", color: "#fff", border: "none", borderRadius: "6px", padding: "0.5em 1.2em" }}
-            >
-              全履歴を削除
-            </button>
-            <CsvExportButton items={items} />
+          <button
+            onClick={() => {
+              if (window.confirm("本当に全ての履歴を削除しますか？")) {
+                items.forEach((item) => deleteItem(item.id));
+              }
+            }}
+            style={{
+              marginBottom: "1em",
+              background: "#e74c3c",
+              color: "#fff",
+              border: "none",
+              borderRadius: "6px",
+              padding: "0.5em 1.2em",
+            }}
+          >
+            全履歴を削除
+          </button>
+          <CsvExportButton items={items} />
         </>
       )}
     </div>
