@@ -52,7 +52,7 @@ const CategoryPieChart: React.FC<Props> = ({ items, type }) => {
             outerRadius={80}
             label
           >
-            {data.map((entry, idx) => (
+            {data.map((_entry, idx) => (
               <Cell key={`cell-${idx}`} fill={COLORS[idx % COLORS.length]} />
             ))}
           </Pie>
