@@ -130,12 +130,22 @@
   padding: 2em 1.5em;
 }
 
+.list-card {
+  width: 100%;
+  margin: 32px auto;
+  padding: 24px 20px;
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
+  background: #fff;
+  box-sizing: border-box;
+}
 /* --- アイテムリストの編集・削除ボタン --- */
 .item-actions {
   display: flex;
   gap: 0.8em;
 }
-.edit-btn, .delete-btn {
+.edit-btn,
+.delete-btn {
   padding: 0.25em 1.1em;
   border-radius: 5px;
   border: none;
@@ -175,7 +185,8 @@
   .summary-card.modern-card {
     padding: 1.3em 1.1em;
   }
-  .input-form-area, .item-list-area {
+  .input-form-area,
+  .item-list-area {
     padding: 1.2em 0.4em;
   }
 }

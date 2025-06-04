@@ -27,6 +27,11 @@ const App: React.FC = () => {
     getCurrentYearMonth()
   );
   const [tab, setTab] = useState<"graph" | "list">("graph"); // タブの状態
+  const [categories, setCategories] = useState<string[]>([
+    "食費",
+    "交通",
+    "趣味",
+  ]);
 
   useEffect(() => {
     return onAuthStateChanged(auth, setUser);
@@ -53,6 +58,13 @@ const App: React.FC = () => {
   };
   const handleEditClick = (item: Item) => {
     setEditItem(item);
+  };
+
+  // カテゴリー追加
+  const handleAddCategory = (newCategory: string) => {
+    if (!categories.includes(newCategory)) {
+      setCategories([...categories, newCategory]);
+    }
   };
 
   // 月ごとのフィルタと集計
@@ -213,6 +225,8 @@ const App: React.FC = () => {
                 onAdd={handleAddItem}
                 onUpdate={handleUpdateItem}
                 editItem={editItem}
+                categories={categories}
+                onAddCategory={handleAddCategory}
               />
             </div>
 

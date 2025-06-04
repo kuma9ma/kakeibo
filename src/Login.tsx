@@ -10,18 +10,22 @@ interface LoginProps {
 }
 
 const cardStyle: React.CSSProperties = {
-  maxWidth: 340,
-  margin: "80px auto",
-  padding: "32px 24px",
+  maxWidth: "95vw", // 画面幅の95%まで
+  width: 340, // PCでは340px
+  margin: "10vh auto",
+  padding: "8vw 4vw", // モバイルで余白が確保されるように
   borderRadius: 16,
   boxShadow: "0 4px 24px rgba(0,0,0,0.12)",
   background: "#fff",
   textAlign: "center",
+  boxSizing: "border-box",
 };
 
 const buttonStyle: React.CSSProperties = {
-  minWidth: 220, // 追加: ボタン幅を確保
-  padding: "12px 0", // 左右の余白を減らす
+  minWidth: 0,
+  width: "100%",
+  maxWidth: 300,
+  padding: "12px 0",
   borderRadius: 8,
   border: "1.5px solid #4285F4",
   background: "#fff",
@@ -35,6 +39,7 @@ const buttonStyle: React.CSSProperties = {
   alignItems: "center",
   justifyContent: "center",
   gap: 8,
+  boxSizing: "border-box",
 };
 
 const logoutButtonStyle: React.CSSProperties = {
