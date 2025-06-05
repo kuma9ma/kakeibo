@@ -5,6 +5,7 @@ export type Item = {
   id: string;
   date: string;
   category: string;
+  subCategory: string; // 追加
   amount: number;
   type: "支出" | "収入";
 };
@@ -13,8 +14,9 @@ type Props = {
   onAdd: (item: Omit<Item, "id">) => void;
   onUpdate: (item: Item) => void;
   editItem: Item | null;
-  categories: string[];
+  categories: { name: string; sub: string[] }[];
   onAddCategory: (cat: string) => void;
+  onAddSubCategory: (cat: string, sub: string) => void;
 };
 
 const labelStyle: React.CSSProperties = {
@@ -74,22 +76,50 @@ const modalStyle: React.CSSProperties = {
   alignItems: "stretch",
 };
 
+const modalAddBtnStyle: React.CSSProperties = {
+  background: "#4285F4",
+  color: "#fff",
+  border: "none",
+  borderRadius: 8,
+  padding: "8px 16px",
+  fontWeight: 600,
+  fontSize: 16,
+  cursor: "pointer",
+  transition: "background 0.2s",
+};
+
+const modalCancelBtnStyle: React.CSSProperties = {
+  marginTop: 8,
+  background: "#eee",
+  color: "#333",
+  border: "none",
+  borderRadius: 8,
+  padding: "6px 0",
+  fontWeight: 500,
+  fontSize: 14,
+  cursor: "pointer",
+};
+
 const InputForm: React.FC<Props> = ({
   onAdd,
   onUpdate,
   editItem,
   categories,
   onAddCategory,
+  onAddSubCategory,
 }) => {
   const today = new Date().toISOString().slice(0, 10);
   const [date, setDate] = useState(today);
   const [category, setCategory] = useState("");
+  const [subCategory, setSubCategory] = useState("");
   const [amount, setAmount] = useState<number>(0);
   const [type, setType] = useState<"支出" | "収入">("支出");
 
   // モーダル用
-  const [showModal, setShowModal] = useState(false);
+  const [showCatModal, setShowCatModal] = useState(false);
+  const [showSubModal, setShowSubModal] = useState(false);
   const [newCategory, setNewCategory] = useState("");
+  const [newSubCategory, setNewSubCategory] = useState("");
 
   useEffect(() => {
     if (editItem) {
@@ -108,22 +138,49 @@ const InputForm: React.FC<Props> = ({
   // カテゴリ選択時
   const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     if (e.target.value === "__add__") {
-      setShowModal(true);
+      setShowCatModal(true);
     } else {
       setCategory(e.target.value);
+      setSubCategory("");
     }
   };
 
-  // モーダルでカテゴリ追加
+  // サブカテゴリ選択時
+  const handleSubCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    if (e.target.value === "__add__") {
+      setShowSubModal(true);
+    } else {
+      setSubCategory(e.target.value);
+    }
+  };
+
+  // 大カテゴリ追加
   const handleAddCategory = (e: React.FormEvent) => {
     e.preventDefault();
     const trimmed = newCategory.trim();
-    if (trimmed && !categories.includes(trimmed)) {
+    if (trimmed && !categories.some((c) => c.name === trimmed)) {
       onAddCategory(trimmed);
       setCategory(trimmed);
+      setSubCategory("");
     }
     setNewCategory("");
-    setShowModal(false);
+    setShowCatModal(false);
+  };
+
+  // 小項目追加
+  const handleAddSubCategory = (e: React.FormEvent) => {
+    e.preventDefault();
+    const trimmed = newSubCategory.trim();
+    if (
+      trimmed &&
+      category &&
+      !categories.find((c) => c.name === category)?.sub.includes(trimmed)
+    ) {
+      onAddSubCategory(category, trimmed);
+      setSubCategory(trimmed);
+    }
+    setNewSubCategory("");
+    setShowSubModal(false);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -132,13 +189,14 @@ const InputForm: React.FC<Props> = ({
     if (editItem) {
       onUpdate({ ...editItem, date, category, amount, type });
     } else {
-      onAdd({ date, category, amount, type });
+      onAdd({ date, category, subCategory, amount, type });
     }
   };
 
   return (
     <div className="list-card">
       <form onSubmit={handleSubmit}>
+        {/* 大カテゴリ */}
         <label style={labelStyle}>カテゴリ</label>
         <select
           value={category}
@@ -148,12 +206,35 @@ const InputForm: React.FC<Props> = ({
         >
           <option value="">カテゴリを選択</option>
           {categories.map((cat) => (
-            <option key={cat} value={cat}>
-              {cat}
+            <option key={cat.name} value={cat.name}>
+              {cat.name}
             </option>
           ))}
           <option value="__add__">+ 新しいカテゴリを追加</option>
         </select>
+
+        {/* 小項目（サブカテゴリ） */}
+        {category && (
+          <>
+            <label style={labelStyle}>小項目</label>
+            <select
+              value={subCategory}
+              onChange={handleSubCategoryChange}
+              required
+              style={inputStyle}
+            >
+              <option value="">小項目を選択</option>
+              {(categories.find((c) => c.name === category)?.sub || []).map(
+                (sub) => (
+                  <option key={sub} value={sub}>
+                    {sub}
+                  </option>
+                )
+              )}
+              <option value="__add__">+ 新しい小項目を追加</option>
+            </select>
+          </>
+        )}
 
         <label style={labelStyle}>種別</label>
         <div style={{ display: "flex", gap: 16, marginBottom: 12 }}>
@@ -203,9 +284,9 @@ const InputForm: React.FC<Props> = ({
         </button>
       </form>
 
-      {/* カテゴリ追加モーダル */}
-      {showModal && (
-        <div style={modalOverlayStyle} onClick={() => setShowModal(false)}>
+      {/* 大カテゴリ追加モーダル */}
+      {showCatModal && (
+        <div style={modalOverlayStyle} onClick={() => setShowCatModal(false)}>
           <div style={modalStyle} onClick={(e) => e.stopPropagation()}>
             <div
               style={{
@@ -229,36 +310,53 @@ const InputForm: React.FC<Props> = ({
                 autoFocus
                 required
               />
-              <button
-                type="submit"
-                style={{
-                  background: "#4285F4",
-                  color: "#fff",
-                  border: "none",
-                  borderRadius: 8,
-                  padding: "8px 16px",
-                  fontWeight: 600,
-                  fontSize: 16,
-                  cursor: "pointer",
-                  transition: "background 0.2s",
-                }}
-              >
+              <button type="submit" style={modalAddBtnStyle}>
                 <FaPlus />
               </button>
             </form>
             <button
-              onClick={() => setShowModal(false)}
+              onClick={() => setShowCatModal(false)}
+              style={modalCancelBtnStyle}
+            >
+              キャンセル
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* 小項目追加モーダル */}
+      {showSubModal && (
+        <div style={modalOverlayStyle} onClick={() => setShowSubModal(false)}>
+          <div style={modalStyle} onClick={(e) => e.stopPropagation()}>
+            <div
               style={{
-                marginTop: 8,
-                background: "#eee",
-                color: "#333",
-                border: "none",
-                borderRadius: 8,
-                padding: "6px 0",
-                fontWeight: 500,
-                fontSize: 14,
-                cursor: "pointer",
+                fontWeight: 600,
+                fontSize: 16,
+                marginBottom: 8,
               }}
+            >
+              新しい小項目を追加
+            </div>
+            <form
+              onSubmit={handleAddSubCategory}
+              style={{ display: "flex", gap: 8 }}
+            >
+              <input
+                type="text"
+                value={newSubCategory}
+                onChange={(e) => setNewSubCategory(e.target.value)}
+                placeholder="小項目名"
+                style={{ ...inputStyle, marginBottom: 0 }}
+                autoFocus
+                required
+              />
+              <button type="submit" style={modalAddBtnStyle}>
+                <FaPlus />
+              </button>
+            </form>
+            <button
+              onClick={() => setShowSubModal(false)}
+              style={modalCancelBtnStyle}
             >
               キャンセル
             </button>

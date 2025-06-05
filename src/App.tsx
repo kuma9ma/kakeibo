@@ -7,11 +7,18 @@ import AssetChart from "./components/AssetChart";
 import CategoryPieChart from "./components/CategoryPieChart";
 import "./App.css";
 
-import { onAuthStateChanged, signOut } from "firebase/auth"; // 追加
-import { auth } from "./firebase";
+import { onAuthStateChanged, signOut } from "firebase/auth";
+import { auth, db } from "./firebase";
 import Login from "./Login";
 import { useKakeiboItems } from "./hooks/useKakeiboItems";
 import CsvExportButton from "./components/CsvExportButton";
+import {
+  collection,
+  getDocs,
+  setDoc,
+  doc,
+  updateDoc,
+} from "firebase/firestore";
 
 function getYearMonth(date: string) {
   return date.slice(0, 7); // "YYYY-MM"
@@ -26,24 +33,34 @@ const App: React.FC = () => {
   const [selectedMonth, setSelectedMonth] = useState<string>(
     getCurrentYearMonth()
   );
-  const [tab, setTab] = useState<"graph" | "list">("graph"); // タブの状態
-  const [categories, setCategories] = useState<string[]>([
-    "食費",
-    "交通",
-    "趣味",
+  const [tab, setTab] = useState<"graph" | "list">("graph");
+  const [categories, setCategories] = useState<
+    { name: string; sub: string[] }[]
+  >([
+    { name: "食費", sub: ["外食", "スーパー"] },
+    { name: "交通", sub: ["電車", "バス"] },
+    { name: "趣味", sub: ["映画", "ゲーム"] },
   ]);
 
+  // Firebase認証
   useEffect(() => {
     return onAuthStateChanged(auth, setUser);
   }, []);
 
-  const userId = user ? user.uid : null;
-  // Firebase用のカスタムフックからitems操作を取得
-  const { items, addItem, updateItem, deleteItem } = useKakeiboItems(userId);
-
+  // カテゴリ一覧をFirestoreから取得
   useEffect(() => {
-    console.log("items:", items);
-  }, [items]);
+    const fetchCategories = async () => {
+      const snapshot = await getDocs(collection(db, "categories"));
+      const cats = snapshot.docs.map(
+        (doc) => doc.data() as { name: string; sub: string[] }
+      );
+      if (cats.length > 0) setCategories(cats);
+    };
+    fetchCategories();
+  }, []);
+
+  const userId = user ? user.uid : null;
+  const { items, addItem, updateItem, deleteItem } = useKakeiboItems(userId);
 
   // 追加・編集・削除イベント
   const handleAddItem = (item: Omit<Item, "id">) => {
@@ -60,10 +77,29 @@ const App: React.FC = () => {
     setEditItem(item);
   };
 
-  // カテゴリー追加
-  const handleAddCategory = (newCategory: string) => {
-    if (!categories.includes(newCategory)) {
-      setCategories([...categories, newCategory]);
+  // 大カテゴリー追加（Firestoreにも保存）
+  const handleAddCategory = async (newCategory: string) => {
+    if (!categories.some((c) => c.name === newCategory)) {
+      const newCat = { name: newCategory, sub: [] };
+      setCategories([...categories, newCat]);
+      await setDoc(doc(db, "categories", newCategory), newCat);
+    }
+  };
+
+  // 小項目追加（Firestoreにも保存）
+  const handleAddSubCategory = async (catName: string, newSub: string) => {
+    setCategories(
+      categories.map((cat) =>
+        cat.name === catName && !cat.sub.includes(newSub)
+          ? { ...cat, sub: [...cat.sub, newSub] }
+          : cat
+      )
+    );
+    const target = categories.find((cat) => cat.name === catName);
+    if (target && !target.sub.includes(newSub)) {
+      await updateDoc(doc(db, "categories", catName), {
+        sub: [...target.sub, newSub],
+      });
     }
   };
 
@@ -227,6 +263,7 @@ const App: React.FC = () => {
                 editItem={editItem}
                 categories={categories}
                 onAddCategory={handleAddCategory}
+                onAddSubCategory={handleAddSubCategory}
               />
             </div>
 
