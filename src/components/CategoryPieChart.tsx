@@ -168,11 +168,13 @@ const CategoryPieChart: React.FC<Props> = ({ items, type }) => {
   );
 };
 
-const CategoryPie: React.FC<{ data: any[]; type: string; isSub?: boolean }> = ({
-  data,
-  type,
-  isSub,
-}) => (
+type CategoryPieProps = {
+  data: { name: string; value: number }[];
+  type: "支出" | "収入";
+  isSub?: boolean; // ←これを追加
+};
+
+const CategoryPie: React.FC<CategoryPieProps> = ({ data, type, isSub }) => (
   <div
     style={{
       width: "100%",
