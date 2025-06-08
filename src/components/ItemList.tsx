@@ -19,7 +19,8 @@ const ItemList: React.FC<Props> = ({ items, onEdit, onDelete }) => (
         <div className="empty-list-message">
           <FaRegClipboard size={40} />
           <div style={{ marginTop: "1em" }}>
-            まだ記録がありません<br />
+            まだ記録がありません
+            <br />
             最初の家計簿をつけてみましょう！
           </div>
         </div>
@@ -34,15 +35,26 @@ const ItemList: React.FC<Props> = ({ items, onEdit, onDelete }) => (
                   item.type === "収入" ? "amount-income" : "amount-expense"
                 }`}
               >
-                {item.type === "収入" ? "+" : "-"}￥{item.amount.toLocaleString()}
+                {item.type === "収入" ? "+" : "-"}￥
+                {item.amount.toLocaleString()}
               </span>
               <span className="item-list-type">
                 {item.type === "収入" ? (
-                  <FaMoneyBillWave style={{ color: "#27ae60", marginRight: "0.2em" }} />
+                  <FaMoneyBillWave
+                    style={{ color: "#27ae60", marginRight: "0.2em" }}
+                  />
                 ) : null}
                 {item.type}
               </span>
             </div>
+            {item.memo && (
+              <div
+                className="item-memo"
+                style={{ color: "#888", fontSize: 13, marginTop: 2 }}
+              >
+                📝 {item.memo}
+              </div>
+            )}
             <div className="item-actions">
               <button
                 className="edit-btn"

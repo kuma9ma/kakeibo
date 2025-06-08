@@ -18,6 +18,7 @@ import {
   setDoc,
   doc,
   updateDoc,
+  // deleteDoc,
 } from "firebase/firestore";
 
 function getYearMonth(date: string) {
@@ -101,6 +102,28 @@ const App: React.FC = () => {
         sub: [...target.sub, newSub],
       });
     }
+  };
+
+  // カテゴリー削除（Firestoreからも削除オプション付き）
+  const handleDeleteCategory = async (catName: string) => {
+    setCategories(categories.filter((c) => c.name !== catName));
+    // Firestoreからも削除したい場合は
+    // await deleteDoc(doc(db, "categories", catName));
+  };
+
+  // サブカテゴリー削除（Firestore更新オプション付き）
+  const handleDeleteSubCategory = async (catName: string, subName: string) => {
+    setCategories(
+      categories.map((c) =>
+        c.name === catName
+          ? { ...c, sub: c.sub.filter((s) => s !== subName) }
+          : c
+      )
+    );
+    // Firestoreも更新したい場合は
+    // await updateDoc(doc(db, "categories", catName), {
+    //   sub: categories.find(c => c.name === catName)?.sub.filter(s => s !== subName) || []
+    // });
   };
 
   // 月ごとのフィルタと集計
@@ -264,6 +287,8 @@ const App: React.FC = () => {
                 categories={categories}
                 onAddCategory={handleAddCategory}
                 onAddSubCategory={handleAddSubCategory}
+                onDeleteCategory={handleDeleteCategory}
+                onDeleteSubCategory={handleDeleteSubCategory}
               />
             </div>
 
