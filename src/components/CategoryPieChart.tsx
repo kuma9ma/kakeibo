@@ -41,9 +41,26 @@ function getCategoryData(items: Item[], type: "支出" | "収入") {
   }));
 }
 
+// サブカテゴリーデータ取得関数
+function getSubCategoryData(items: Item[], type: "支出" | "収入") {
+  const map: Record<string, number> = {};
+  items
+    .filter((item) => item.type === type)
+    .forEach((item) => {
+      // サブカテゴリが空の場合は「(未分類)」などにまとめる
+      const key = item.subCategory?.trim() ? item.subCategory : "(未分類)";
+      map[key] = (map[key] || 0) + item.amount;
+    });
+  return Object.entries(map).map(([subCategory, value]) => ({
+    name: subCategory,
+    value,
+  }));
+}
+
 const CategoryPieChart: React.FC<Props> = ({ items, type }) => {
-  const [mode, setMode] = useState<"pie" | "bar">("pie");
+  const [mode, setMode] = useState<"pie" | "bar" | "subPie" | "subBar">("pie");
   const data = getCategoryData(items, type);
+  const subData = getSubCategoryData(items, type);
 
   if (data.length === 0) {
     return (
@@ -74,9 +91,18 @@ const CategoryPieChart: React.FC<Props> = ({ items, type }) => {
 
   return (
     <div>
-      <div style={{ textAlign: "right", marginBottom: 8 }}>
+      <div
+        style={{
+          textAlign: "right",
+          marginBottom: 8,
+          display: "flex",
+          gap: 8,
+          flexWrap: "wrap",
+          justifyContent: "flex-end",
+        }}
+      >
         <button
-          onClick={() => setMode(mode === "pie" ? "bar" : "pie")}
+          onClick={() => setMode("pie")}
           style={{
             background: "#f5f5f5",
             border: "1px solid #ccc",
@@ -87,50 +113,103 @@ const CategoryPieChart: React.FC<Props> = ({ items, type }) => {
             fontSize: 14,
           }}
         >
-          {mode === "pie" ? "棒グラフで見る" : "円グラフで見る"}
+          カテゴリ円グラフ
         </button>
-      </div>
-      {mode === "pie" ? (
-        <div
+        <button
+          onClick={() => setMode("bar")}
           style={{
-            width: "100%",
-            height: 300,
-            marginBottom: "1em",
-            background: "#fff",
-            borderRadius: "8px",
-            padding: "1em",
+            background: "#f5f5f5",
+            border: "1px solid #ccc",
+            borderRadius: 6,
+            padding: "4px 12px",
+            cursor: "pointer",
+            fontWeight: 600,
+            fontSize: 14,
           }}
         >
-          <h3 style={{ margin: "0 0 0.5em 0" }}>{type}カテゴリ別割合</h3>
-          <ResponsiveContainer width="100%" height={220}>
-            <PieChart>
-              <Pie
-                data={data}
-                dataKey="value"
-                nameKey="name"
-                cx="50%"
-                cy="50%"
-                outerRadius={80}
-                label
-              >
-                {data.map((_entry, idx) => (
-                  <Cell
-                    key={`cell-${idx}`}
-                    fill={COLORS[idx % COLORS.length]}
-                  />
-                ))}
-              </Pie>
-              <Tooltip formatter={(v: any) => `￥${v}`} />
-              <Legend />
-            </PieChart>
-          </ResponsiveContainer>
-        </div>
-      ) : (
-        <CategoryBarChart data={data} type={type} />
+          カテゴリ棒グラフ
+        </button>
+        <button
+          onClick={() => setMode("subPie")}
+          style={{
+            background: "#f5f5f5",
+            border: "1px solid #ccc",
+            borderRadius: 6,
+            padding: "4px 12px",
+            cursor: "pointer",
+            fontWeight: 600,
+            fontSize: 14,
+          }}
+        >
+          小項目円グラフ
+        </button>
+        <button
+          onClick={() => setMode("subBar")}
+          style={{
+            background: "#f5f5f5",
+            border: "1px solid #ccc",
+            borderRadius: 6,
+            padding: "4px 12px",
+            cursor: "pointer",
+            fontWeight: 600,
+            fontSize: 14,
+          }}
+        >
+          小項目棒グラフ
+        </button>
+      </div>
+      {mode === "pie" && <CategoryPie data={data} type={type} />}
+      {mode === "bar" && <CategoryBarChart data={data} type={type} />}
+      {mode === "subPie" && <CategoryPie data={subData} type={type} isSub />}
+      {mode === "subBar" && (
+        <CategoryBarChart data={subData} type={type} isSub />
       )}
     </div>
   );
 };
+
+const CategoryPie: React.FC<{ data: any[]; type: string; isSub?: boolean }> = ({
+  data,
+  type,
+  isSub,
+}) => (
+  <div
+    style={{
+      width: "100%",
+      height: 300,
+      marginBottom: "1em",
+      background: "#fff",
+      borderRadius: "8px",
+      padding: "1em",
+    }}
+  >
+    <h3 style={{ margin: "0 0 0.5em 0" }}>
+      {type}
+      {isSub ? "小項目" : "カテゴリ"}
+      別割合
+    </h3>
+    <ResponsiveContainer width="100%" height={220}>
+      <PieChart>
+        <Pie
+          data={data}
+          dataKey="value"
+          nameKey="name"
+          cx="50%"
+          cy="50%"
+          outerRadius={80}
+          fill="#8884d8"
+          paddingAngle={5}
+        >
+          {data.map((_, index) => (
+            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+          ))}
+        </Pie>
+        <Tooltip formatter={(value: any) => `￥${value}`} />
+        <Legend />
+      </PieChart>
+    </ResponsiveContainer>
+  </div>
+);
 
 const CategoryBarChart: React.FC<{
   data: { name: string; value: number }[];

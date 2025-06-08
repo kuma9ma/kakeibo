@@ -26,10 +26,13 @@ const ItemList: React.FC<Props> = ({ items, onEdit, onDelete }) => (
         </div>
       ) : (
         items.map((item) => (
-          <li className="item-list-li" key={item.id}>
+          <li className="item-list-li modern-list-row" key={item.id}>
             <div className="item-list-info">
               <span className="item-date">{item.date}</span>
               <span className="item-category">{item.category}</span>
+              <span className="item-subcategory">
+                {item.subCategory && <> / {item.subCategory}</>}
+              </span>
               <span
                 className={`item-list-amount ${
                   item.type === "収入" ? "amount-income" : "amount-expense"

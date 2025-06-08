@@ -143,6 +143,7 @@ const InputForm: React.FC<Props> = ({
   const [amount, setAmount] = useState<number | "">(""); // 初期値を空文字に
   const [type, setType] = useState<"支出" | "収入">("支出");
   const [memo, setMemo] = useState(""); // 追加
+  const [successMsg, setSuccessMsg] = useState(""); // 追加
 
   // モーダル用
   const [showCatModal, setShowCatModal] = useState(false);
@@ -273,7 +274,7 @@ const InputForm: React.FC<Props> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!date || !category || !amount) return; // subCategoryの必須チェックを外す
+    if (!date || !category || !amount) return;
     if (editItem) {
       onUpdate({
         ...editItem,
@@ -286,6 +287,13 @@ const InputForm: React.FC<Props> = ({
       });
     } else {
       onAdd({ date, category, subCategory, amount, type, memo });
+      // 入力欄をクリア（ただし日付は残す）
+      setSubCategory("");
+      setAmount("");
+      setType("支出");
+      setMemo("");
+      setSuccessMsg("追加しました！");
+      setTimeout(() => setSuccessMsg(""), 1200); // 1.2秒で消える
     }
   };
 
@@ -456,6 +464,18 @@ const InputForm: React.FC<Props> = ({
           {editItem ? "更新" : "追加"}
         </button>
       </form>
+      {successMsg && (
+        <div
+          style={{
+            color: "#27ae60",
+            fontWeight: 600,
+            textAlign: "center",
+            margin: "8px 0",
+          }}
+        >
+          {successMsg}
+        </div>
+      )}
 
       {/* 大カテゴリ追加モーダル */}
       {showCatModal && (
