@@ -216,7 +216,8 @@ const CategoryPie: React.FC<CategoryPieProps> = ({ data, type, isSub }) => (
 const CategoryBarChart: React.FC<{
   data: { name: string; value: number }[];
   type: "支出" | "収入";
-}> = ({ data, type }) => (
+  isSub?: boolean; // ←追加
+}> = ({ data, type, isSub }) => (
   <div
     style={{
       width: "100%",
@@ -227,7 +228,11 @@ const CategoryBarChart: React.FC<{
       padding: "1em",
     }}
   >
-    <h3 style={{ margin: "0 0 0.5em 0" }}>{type}カテゴリ別金額（棒グラフ）</h3>
+    <h3 style={{ margin: "0 0 0.5em 0" }}>
+      {type}
+      {isSub ? "小項目" : "カテゴリ"}
+      別金額（棒グラフ）
+    </h3>
     <ResponsiveContainer width="100%" height={220}>
       <BarChart data={data}>
         <XAxis dataKey="name" />
