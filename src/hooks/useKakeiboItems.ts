@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { db } from "../firebase";
 import {
-  collection, addDoc, getDocs, doc, setDoc, deleteDoc, onSnapshot
+  collection, addDoc, doc, setDoc, deleteDoc, onSnapshot
 } from "firebase/firestore";
 import type { Item } from "../components/InputForm";
 
