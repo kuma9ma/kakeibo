@@ -12,7 +12,10 @@ const getAssetHistory = (items: Item[]) => {
   const sorted = [...items].sort((a, b) => a.date.localeCompare(b.date));
   let asset = 0;
   const result: { date: string; asset: number }[] = [];
+<<<<<<< HEAD
   // let lastDate = "";
+=======
+>>>>>>> ce896a5d0da8ab12684b6bf19e17722e28e85072
   for (const item of sorted) {
     asset += item.type === "収入" ? item.amount : -item.amount;
     // 同じ日付なら上書き（1日1点にする）
@@ -21,7 +24,10 @@ const getAssetHistory = (items: Item[]) => {
     } else {
       result.push({ date: item.date, asset });
     }
+<<<<<<< HEAD
     // lastDate = item.date;
+=======
+>>>>>>> ce896a5d0da8ab12684b6bf19e17722e28e85072
   }
   return result;
 };
