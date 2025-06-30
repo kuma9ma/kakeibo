@@ -12,8 +12,6 @@ import { auth, db } from "./firebase";
 import Login from "./Login";
 import { useKakeiboItems } from "./hooks/useKakeiboItems";
 import CsvExportButton from "./components/CsvExportButton";
-<<<<<<< HEAD
-=======
 import {
   collection,
   getDocs,
@@ -22,7 +20,6 @@ import {
   updateDoc,
   // deleteDoc,
 } from "firebase/firestore";
->>>>>>> ce896a5d0da8ab12684b6bf19e17722e28e85072
 
 function getYearMonth(date: string) {
   return date.slice(0, 7); // "YYYY-MM"
@@ -46,11 +43,7 @@ const App: React.FC = () => {
     { name: "趣味", sub: ["映画", "ゲーム"] },
   ]);
 
-<<<<<<< HEAD
-
-=======
   // Firebase認証
->>>>>>> ce896a5d0da8ab12684b6bf19e17722e28e85072
   useEffect(() => {
     return onAuthStateChanged(auth, setUser);
   }, []);
@@ -312,19 +305,6 @@ const App: React.FC = () => {
               />
             </div>
           </div>
-<<<<<<< HEAD
-           <button
-              onClick={() => {
-                if (window.confirm("本当に全ての履歴を削除しますか？")) {
-                  items.forEach(item => deleteItem(item.id));
-                }
-              }}
-              style={{ marginBottom: "1em", background: "#e74c3c", color: "#fff", border: "none", borderRadius: "6px", padding: "0.5em 1.2em" }}
-            >
-              全履歴を削除
-            </button>
-            <CsvExportButton items={items} />
-=======
           <button
             onClick={() => {
               if (window.confirm("本当に全ての履歴を削除しますか？")) {
@@ -343,30 +323,10 @@ const App: React.FC = () => {
             全履歴を削除
           </button>
           <CsvExportButton items={items} />
->>>>>>> ce896a5d0da8ab12684b6bf19e17722e28e85072
         </>
       )}
     </div>
   );
 };
 
-<<<<<<< HEAD
-(async function() {
-	// サブドメインは利用中のkintoneのURLと同じ
-	const url = new URL("https://dev-cloudbalance.cybozu.com/k/v1/records.json");
-	// アプリIDは次の手順で確認できます
-	url.searchParams.append('app', '847');
-	// url.searchParams.append('query', "<取得条件>");
-	const res = await fetch('/api/k/v1/records.json?app=847',
-	{
-		headers: {
-			"X-Cybozu-API-Token": "ezGD8keuHfQMLMbXeSqvVYjKB25bB84Yobbvzdig",
-		},
-	})
-	console.log(JSON.stringify(await res.json()));
-})();
-
 export default App;
-=======
-export default App;
->>>>>>> ce896a5d0da8ab12684b6bf19e17722e28e85072

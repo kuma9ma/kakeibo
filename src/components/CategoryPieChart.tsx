@@ -90,29 +90,6 @@ const CategoryPieChart: React.FC<Props> = ({ items, type }) => {
   }
 
   return (
-<<<<<<< HEAD
-    <div style={{ width: "100%", height: 300, marginBottom: "1em", background: "#fff", borderRadius: "8px", padding: "1em" }}>
-      <h3 style={{ margin: "0 0 0.5em 0" }}>{type}カテゴリ別割合</h3>
-      <ResponsiveContainer width="100%" height={220}>
-        <PieChart>
-          <Pie
-            data={data}
-            dataKey="value"
-            nameKey="name"
-            cx="50%"
-            cy="50%"
-            outerRadius={80}
-            label
-          >
-            {data.map((_, idx) => (
-              <Cell key={`cell-${idx}`} fill={COLORS[idx % COLORS.length]} />
-            ))}
-          </Pie>
-          <Tooltip formatter={(v: any) => `￥${v}`} />
-          <Legend />
-        </PieChart>
-      </ResponsiveContainer>
-=======
     <div>
       <div
         style={{
@@ -187,7 +164,6 @@ const CategoryPieChart: React.FC<Props> = ({ items, type }) => {
       {mode === "subBar" && (
         <CategoryBarChart data={subData} type={type} isSub />
       )}
->>>>>>> ce896a5d0da8ab12684b6bf19e17722e28e85072
     </div>
   );
 };
